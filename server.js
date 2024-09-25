@@ -1,43 +1,21 @@
 import {createServer} from "http";
-import {listContainers, deleteContainer} from "./docker-client.js";
-import * as containersView from "./containers-view.js";
-
-const respondWith = (res, statusCode, headers, body) => {
-  res.writeHead(statusCode, headers);
-  res.end(body);
-};
-
-const Router = (req, res) => {
-  const routes = [];
-  return {
-    get: (urlPattern, fn) => {
-      routes.push(["GET", urlPattern, fn]);
-    },
-    delete: async (urlPattern, fn) => {
-      routes.push(["DELETE", urlPattern, fn]);
-    },
-    route: async (req, res) => {
-      for (const route of routes) {
-        const [method, pattern, fn] = route;
-        const matches = req.url.match(pattern);
-        if (req.method === method && matches) {
-          return await fn(matches);
-        }
-      }
-      const respond = respondWith.bind(null, res);
-      respond(404, {"Content-Type": "text/html"}, `<html></html>`);
-    },
-  };
-};
+import {
+  listContainers,
+  deleteContainer,
+  createContainer,
+  startContainer,
+} from "./lib/docker-client.js";
+import * as containersView from "./lib/containers-view.js";
+import {respondWithHTML, Router} from "./lib/router.js";
 
 createServer(async (req, res) => {
-  const respond = respondWith.bind(null, res);
+  const respond = respondWithHTML.bind(null, res);
   const router = Router(req, res);
-  router.get(new RegExp("/"), async () => {
+  router.get(new RegExp("/$"), async () => {
     const containerList = await listContainers();
     respond(
       200,
-      {"Content-Type": "text/html"},
+      {},
       `<!doctype html>
     <html>
     <head>
@@ -51,15 +29,21 @@ createServer(async (req, res) => {
     );
   });
 
-  router.delete(/\/containers\/(?<id>[0-9a-z]+)/, async (matches) => {
+  router.delete(/\/containers\/(?<id>[0-9a-z]+)$/, async (matches) => {
     const deleteRes = await deleteContainer({id: matches.groups.id});
     const containerList = await listContainers();
-    respond(
-      200,
-      {"Content-Type": "text/html"},
-      containersView.render(containerList)
-    );
+    respond(200, {}, containersView.render(containerList));
   });
 
-  router.route(req, res);
+  router.post(/\/containers$/, async (matches) => {
+    const container = await createContainer({
+      image: "alpine",
+      cmd: ["sleep", "10000"],
+    });
+    const res = await startContainer({id: container.Id});
+    const containerList = await listContainers();
+    respond(200, {}, containersView.render(containerList));
+  });
+
+  router.route();
 }).listen(4000);
