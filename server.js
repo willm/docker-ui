@@ -7,6 +7,7 @@ import {
 } from "./lib/docker-client.js";
 import * as containersView from "./lib/containers-view.js";
 import {respondWithHTML, Router} from "./lib/router.js";
+import * as query from "node:querystring";
 
 createServer(async (req, res) => {
   const respond = respondWithHTML.bind(null, res);
@@ -29,16 +30,17 @@ createServer(async (req, res) => {
     );
   });
 
-  router.delete(/\/containers\/(?<id>[0-9a-z]+)$/, async (matches) => {
+  router.delete(/\/containers\/(?<id>[0-9a-z]+)$/, async ({matches}) => {
     const deleteRes = await deleteContainer({id: matches.groups.id});
     const containerList = await listContainers();
     respond(200, {}, containersView.render(containerList));
   });
 
-  router.post(/\/containers$/, async (matches) => {
+  router.post(/\/containers$/, async ({matches, req, body}) => {
+    const opts = query.parse(body);
     const container = await createContainer({
-      image: "alpine",
-      cmd: ["sleep", "10000"],
+      ...opts,
+      cmd: opts.cmd.split(" "),
     });
     const res = await startContainer({id: container.Id});
     const containerList = await listContainers();
