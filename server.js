@@ -6,37 +6,24 @@ import {
   startContainer,
 } from "./lib/docker-client.js";
 import * as containersView from "./lib/containers-view.js";
-import {respondWithHTML, Router} from "./lib/router.js";
+import {Router} from "./lib/router.js";
 import * as query from "node:querystring";
+import {listHandler} from "./lib/list-handler.js";
 
 createServer(async (req, res) => {
-  const respond = respondWithHTML.bind(null, res);
   const router = Router(req, res);
-  router.get(new RegExp("/$"), async () => {
-    const containerList = await listContainers();
-    respond(
-      200,
-      {},
-      `<!doctype html>
-    <html>
-    <head>
-      <script src="https://unpkg.com/htmx.org@2.0.2" integrity="sha384-Y7hw+L/jvKeWIRRkqWYfPcvVxHzVzn5REgzbawhxAuQGwX1XWe70vji+VSeHOThJ" crossorigin="anonymous"></script>
-      <title>Docker</title>
-    </head>
-    <body>
-      ${containersView.render(containerList)}
-    </body>
-</html>`
-    );
-  });
+  router.get(new RegExp("/$"), listHandler);
 
-  router.delete(/\/containers\/(?<id>[0-9a-z]+)$/, async ({matches}) => {
-    const deleteRes = await deleteContainer({id: matches.groups.id});
-    const containerList = await listContainers();
-    respond(200, {}, containersView.render(containerList));
-  });
+  router.delete(
+    /\/containers\/(?<id>[0-9a-z]+)$/,
+    async ({matches, respond}) => {
+      const deleteRes = await deleteContainer({id: matches.groups.id});
+      const containerList = await listContainers();
+      respond(200, {}, containersView.render(containerList));
+    }
+  );
 
-  router.post(/\/containers$/, async ({matches, req, body}) => {
+  router.post(/\/containers$/, async ({matches, req, body, respond}) => {
     const opts = query.parse(body);
     const container = await createContainer({
       ...opts,
@@ -44,7 +31,7 @@ createServer(async (req, res) => {
     });
     const res = await startContainer({id: container.Id});
     const containerList = await listContainers();
-    respond(200, {}, containersView.render(containerList));
+    respond(201, {}, containersView.render(containerList));
   });
 
   router.route();
