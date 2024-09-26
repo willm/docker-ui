@@ -1,4 +1,6 @@
-export const render = (containers) => {
+import type {ListContainerResponse} from "./docker-client.js";
+
+export const render = (containers: ListContainerResponse) => {
   return `<section id="containers">
     <form hx-post="/containers" hx-target="#containers">
         <input type="text" name="image" id="image" />
