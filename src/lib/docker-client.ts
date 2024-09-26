@@ -1,22 +1,30 @@
 import http from "http";
+import type {RequestOptions} from "http";
 // docs https://docs.docker.com/reference/api/engine/version/v1.46/#tag/Container
 const socketPath = "/var/run/docker.sock";
 const apiVersion = "v1.41";
 
-export const listContainers = async () => {
+export type ListContainerResponse = {
+  Id: string;
+  Command: string;
+  Created: number;
+}[];
+export const listContainers = async (): Promise<ListContainerResponse> => {
   return JSON.parse(
     await request({path: url("/containers/json"), method: "GET"})
   );
 };
 
-export const deleteContainer = async (opts) => {
+type DeleteContainerRequest = {id: string};
+export const deleteContainer = async (opts: DeleteContainerRequest) => {
   return await request({
     path: url(`/containers/${opts.id}?force=true&v=true`),
     method: "DELETE",
   });
 };
 
-export const createContainer = async (opts) => {
+type CreateContainerRequest = {image: string; cmd: string[]};
+export const createContainer = async (opts: CreateContainerRequest) => {
   return JSON.parse(
     await request({
       path: url(`/containers/create`),
@@ -26,17 +34,24 @@ export const createContainer = async (opts) => {
   );
 };
 
-export const startContainer = async (opts) => {
+type StartContainerRequest = {id: string};
+export const startContainer = async (opts: StartContainerRequest) => {
   return await request({
     path: url(`/containers/${opts.id}/start`),
     method: "POST",
   });
 };
 
-const url = (path) => `/${apiVersion}${path}`;
+const url = (path: string): string => `/${apiVersion}${path}`;
 
-const request = async (opts) => {
-  const options = {
+type APIRequest<T> = {
+  path: string;
+  method: "GET" | "POST" | "DELETE";
+  body?: T;
+};
+
+const request = async <T>(opts: APIRequest<T>): Promise<string> => {
+  const options: RequestOptions = {
     socketPath: socketPath,
     path: opts.path,
     method: opts.method,

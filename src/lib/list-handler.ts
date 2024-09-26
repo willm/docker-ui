@@ -1,7 +1,8 @@
 import {listContainers} from "./docker-client.js";
 import * as containersView from "./containers-view.js";
+import type {Handler} from "./router.js";
 
-export const listHandler = async ({respond}) => {
+export const listHandler: Handler = async ({respond}) => {
   const containerList = await listContainers();
   respond(
     200,
