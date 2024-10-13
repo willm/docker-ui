@@ -1,10 +1,11 @@
 import type {ServerResponse, IncomingMessage} from "http";
+import {Stream} from "stream";
 
 const respondWithHTML = (
   res: ServerResponse,
   statusCode: number,
   headers: Record<string, string>,
-  body: string
+  body: string | Stream
 ) => {
   res.writeHead(statusCode, {"Content-Type": "text/html", ...headers});
   res.end(body);
@@ -18,7 +19,7 @@ type RouterContext = {
   respond: (
     statusCode: number,
     headers: Record<string, string>,
-    body: string
+    body: string | Stream
   ) => void;
 };
 
