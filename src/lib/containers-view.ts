@@ -2,18 +2,7 @@ import type {ListContainerResponse} from "./docker-client.js";
 
 export const render = (containers: ListContainerResponse) => {
   return `<section id="containers" hx-ext="response-targets">
-    <form hx-post="/containers" hx-target="#containers" hx-target-error="#error">
-      <h2>Launch Container</h2>
-      <label for="image">image</label>
-      <input required type="text" name="image" id="image" />
-      <label for="cmd">command</label>
-      <input required type="text" name="cmd" id="cmd" />
-      <button type="submit">
-        +
-        <span class="htmx-indicator">...</span>
-      </button>
-    </form>
-    <section>
+    <section hx-get="/containers" hx-trigger="newContainer from:body">
       ${containers
         .map(
           (c) => `<aside>
