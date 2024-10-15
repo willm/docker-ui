@@ -29,7 +29,7 @@ const parseRequest = (requestBody: string): CreateContainerRequest => {
   return {cmd: cmd.split(" "), image};
 };
 
-export const postHandler: Handler = async ({body, respond}) => {
+export const postHandler: Handler = async ({body, res, respond}) => {
   let request: CreateContainerRequest;
   try {
     request = parseRequest(body);
@@ -39,14 +39,17 @@ export const postHandler: Handler = async ({body, respond}) => {
   const {image, cmd} = request;
 
   try {
-    await new Promise<void>(async (resolve, reject) => {
+    await new Promise<void>(async (resolve, _reject) => {
+      res.writeHead(200, {"transfer-encoding": "chunked"});
       const createImageRes = await createImage({
         fromImage: image,
         tag: "latest",
       });
-      createImageRes.on("data", (data: Buffer) =>
-        console.log(data.toString("utf8") + "foo")
-      );
+      createImageRes.on("data", (data: Buffer) => {
+        res.write(`
+          <span>${JSON.parse(data.toString("utf8")).status}</span>
+        `);
+      });
       createImageRes.on("end", () => resolve());
     });
   } catch (err) {
@@ -76,6 +79,10 @@ export const postHandler: Handler = async ({body, respond}) => {
 
   try {
     await startContainer({id: container.Id});
+    res.end(`<button type="submit">
+          +
+          <span class="htmx-indicator">...</span>
+        </button>`);
   } catch (err) {
     const httpError = err as HTTPError;
     return respond(
@@ -84,6 +91,4 @@ export const postHandler: Handler = async ({body, respond}) => {
       `<p><strong>${httpError?.JSONBody()?.message || httpError.message}</strong></p>`
     );
   }
-  const containerList = await listContainers();
-  respond(201, {}, containersView.render(containerList));
 };
