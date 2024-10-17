@@ -2,7 +2,7 @@ import type {ListContainerResponse} from "./docker-client.js";
 
 export const render = (containers: ListContainerResponse) => {
   return `<section id="containers" hx-ext="response-targets">
-    <section hx-get="/containers" hx-trigger="newContainer from:body">
+    <section hx-get="/containers" hx-trigger="newContainer from:body, every 1s">
       ${containers
         .map(
           (c) => `<aside>
