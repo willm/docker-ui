@@ -60,7 +60,7 @@ export const postHandler: Handler = async ({body, res, respond}) => {
     console.error(err);
     const httpError = err as HTTPError;
     return respond(
-      (err as HTTPError).statusCode,
+      (err as HTTPError).statusCode || 500,
       {},
       `<p><strong>${httpError?.JSONBody()?.message || httpError.message}</strong></p>`
     );
