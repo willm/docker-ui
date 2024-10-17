@@ -62,7 +62,6 @@ export const createImage = (
         },
       },
       (res) => {
-        console.log("done", res.statusCode);
         return resolve(res);
       }
     );
