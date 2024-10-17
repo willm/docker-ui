@@ -1,11 +1,9 @@
 import {
-  listContainers,
   createContainer,
   startContainer,
   createImage,
   HTTPError,
 } from "./docker-client.js";
-import * as containersView from "./containers-view.js";
 import * as query from "node:querystring";
 import type {Handler} from "./router.js";
 
@@ -39,7 +37,7 @@ export const postHandler: Handler = async ({body, res, respond}) => {
   const {image, cmd} = request;
 
   try {
-    await new Promise<void>(async (resolve, _reject) => {
+    await new Promise<void>(async (resolve, reject) => {
       res.writeHead(200, {"transfer-encoding": "chunked"});
       const createImageRes = await createImage({
         fromImage: image,
@@ -51,25 +49,16 @@ export const postHandler: Handler = async ({body, res, respond}) => {
         `);
       });
       createImageRes.on("end", () => resolve());
+      createImageRes.on("error", reject);
     });
-  } catch (err) {
-    const httpError = err as HTTPError;
-    return respond(
-      (err as HTTPError).statusCode,
-      {},
-      `<p><strong>${httpError?.JSONBody()?.message || httpError.message}</strong></p>`
-    );
-  }
-
-  let container;
-  try {
-    container = await createContainer({
+    const container = await createContainer({
       image,
       cmd,
     });
+    await startContainer({id: container.Id});
   } catch (err) {
-    const httpError = err as HTTPError;
     console.error(err);
+    const httpError = err as HTTPError;
     return respond(
       (err as HTTPError).statusCode,
       {},
@@ -77,18 +66,8 @@ export const postHandler: Handler = async ({body, res, respond}) => {
     );
   }
 
-  try {
-    await startContainer({id: container.Id});
-    res.end(`<button type="submit">
+  res.end(`<button type="submit">
           +
           <span class="htmx-indicator">...</span>
         </button>`);
-  } catch (err) {
-    const httpError = err as HTTPError;
-    return respond(
-      (err as HTTPError).statusCode,
-      {},
-      `<p><strong>${httpError?.JSONBody()?.message || httpError.message}</strong></p>`
-    );
-  }
 };
