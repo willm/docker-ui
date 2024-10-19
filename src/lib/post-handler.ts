@@ -1,9 +1,5 @@
-import {
-  createContainer,
-  startContainer,
-  createImage,
-  HTTPError,
-} from "./docker-client.js";
+import {createContainer, startContainer, createImage} from "./docker-client.js";
+import {HTTPError} from "./request.js";
 import * as query from "node:querystring";
 import type {Handler} from "./router.js";
 
