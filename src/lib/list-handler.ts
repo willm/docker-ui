@@ -1,4 +1,5 @@
-import {HTTPError, listContainers} from "./docker-client.js";
+import {listContainers} from "./docker-client.js";
+import {HTTPError} from "./request.js";
 import * as containersView from "./containers-view.js";
 import type {Handler} from "./router.js";
 
