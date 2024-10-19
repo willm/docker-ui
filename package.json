@@ -6,6 +6,7 @@
   "main": "index.js",
   "scripts": {
     "start": "tsc --watch & node --enable-source-maps --watch dist/server.js",
+    "debug": "tsc --watch & node --inspect --enable-source-maps --watch dist/server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
