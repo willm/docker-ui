@@ -5,11 +5,18 @@ import type {IncomingMessage, RequestOptions} from "http";
 const socketPath = "/var/run/docker.sock";
 const apiVersion = "v1.41";
 
+export type Port = {
+  PublicPort?: number;
+  PrivatePort: number;
+  IP: string;
+};
+
 export type ListContainerResponse = {
   Id: string;
   Command: string;
   Created: number;
   Image: string;
+  Ports: Port[];
 }[];
 export const listContainers = async (): Promise<ListContainerResponse> => {
   return JSON.parse(
