@@ -8,18 +8,22 @@
     "start": "tsc --watch & node --enable-source-maps --watch dist/server.js",
     "debug": "tsc --watch & node --inspect --enable-source-maps --watch dist/server.js",
     "format": "prettier --write --check .",
-    "lint": "prettier --check .",
-    "test": "echo \"Error: no test specified\"",
+    "lint": "prettier --check . && eslint .",
+    "test": "npm run lint",
     "prepare": "husky"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
     "@commitlint/config-conventional": "^19.5.0",
+    "@eslint/js": "^9.13.0",
     "@types/node": "^22.7.2",
     "commitlint": "^19.5.0",
+    "eslint": "^9.13.0",
+    "globals": "^15.11.0",
     "husky": "^9.1.6",
     "prettier": "^3.3.3",
-    "typescript": "^5.6.2"
+    "typescript": "^5.6.2",
+    "typescript-eslint": "^8.10.0"
   }
 }

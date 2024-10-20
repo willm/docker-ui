@@ -39,12 +39,12 @@ export const postHandler: Handler = async ({body, res, respond}) => {
   const {image, cmd, tcpPorts} = request;
 
   try {
-    await new Promise<void>(async (resolve, reject) => {
-      res.writeHead(200, {"transfer-encoding": "chunked"});
-      const createImageRes = await createImage({
-        fromImage: image,
-        tag: "latest",
-      });
+    res.writeHead(200, {"transfer-encoding": "chunked"});
+    const createImageRes = await createImage({
+      fromImage: image,
+      tag: "latest",
+    });
+    await new Promise<void>((resolve, reject) => {
       createImageRes.on("data", (data: Buffer) => {
         res.write(`
           <span>${JSON.parse(data.toString("utf8")).status}</span>
