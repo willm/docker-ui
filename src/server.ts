@@ -1,19 +1,13 @@
-import {createServer} from "http";
-import {Router} from "./lib/router.js";
+import {serve} from "@hono/node-server";
+import {Hono} from "hono";
 import {listHandler} from "./lib/list-handler.js";
 import {postHandler} from "./lib/post-handler.js";
 import {deleteHandler} from "./lib/delete-handler.js";
 import {getHandler} from "./lib/get-handler.js";
 
-createServer((req, res) => {
-  const router = Router(req, res);
-  router.get(/\/$/, listHandler);
-
-  router.delete(/\/containers\/(?<id>[0-9a-z]+)$/, deleteHandler);
-
-  router.post(/\/containers$/, postHandler);
-
-  router.get(/\/containers$/, getHandler);
-
-  router.route();
-}).listen(4000);
+const app = new Hono();
+app.get("/", listHandler);
+app.get("/containers", getHandler);
+app.post("/containers", postHandler);
+app.delete("/containers/:id", deleteHandler);
+serve({fetch: app.fetch, port: 4000});

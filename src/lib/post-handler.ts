@@ -1,7 +1,8 @@
 import {createContainer, startContainer, createImage} from "./docker-client.js";
 import {HTTPError} from "./request.js";
-import * as query from "node:querystring";
-import type {Handler} from "./router.js";
+import type {Handler} from "hono";
+import {html} from "hono/html";
+import {stream} from "hono/streaming";
 
 type CreateContainerRequest = {
   cmd: string[];
@@ -9,8 +10,12 @@ type CreateContainerRequest = {
   tcpPorts: Map<number, number>;
 };
 
-const parseRequest = (requestBody: string): CreateContainerRequest => {
-  const opts = query.parse(requestBody);
+const parseRequest = (opts: {
+  cmd: string;
+  image: string;
+  containerPort: string;
+  hostPort: string;
+}): CreateContainerRequest => {
   if (opts.cmd === undefined) {
     throw new Error("missing cmd");
   }
@@ -29,48 +34,50 @@ const parseRequest = (requestBody: string): CreateContainerRequest => {
   return {cmd: cmd.split(" "), image, tcpPorts: new Map(tcpPorts)};
 };
 
-export const postHandler: Handler = async ({body, res, respond}) => {
+export const postHandler: Handler = async (ctx) => {
   let request: CreateContainerRequest;
   try {
-    request = parseRequest(body);
+    request = parseRequest(await ctx.req.parseBody());
   } catch (err) {
-    return respond(400, {}, `<p>${(err as Error).message}</p>`);
+    ctx.status(400);
+    return ctx.html(html`<p>${(err as Error).message}</p>`);
   }
   const {image, cmd, tcpPorts} = request;
 
-  try {
-    res.writeHead(200, {"transfer-encoding": "chunked"});
-    const createImageRes = await createImage({
-      fromImage: image,
-      tag: "latest",
-    });
-    await new Promise<void>((resolve, reject) => {
-      createImageRes.on("data", (data: Buffer) => {
-        res.write(`
+  return stream(
+    ctx,
+    async (stream) => {
+      const createImageRes = await createImage({
+        fromImage: image,
+        tag: "latest",
+      });
+      await new Promise<void>((resolve, reject) => {
+        createImageRes.on("data", async (data: Buffer) => {
+          await stream.write(`
           <span>${JSON.parse(data.toString("utf8")).status}</span>
         `);
+        });
+        createImageRes.on("end", () => resolve());
+        createImageRes.on("error", reject);
       });
-      createImageRes.on("end", () => resolve());
-      createImageRes.on("error", reject);
-    });
-    const container = await createContainer({
-      image,
-      cmd,
-      tcpPorts,
-    });
-    await startContainer({id: container.Id});
-  } catch (err) {
-    console.error(err);
-    const httpError = err as HTTPError;
-    return respond(
-      (err as HTTPError).statusCode || 500,
-      {},
-      `<p><strong>${httpError?.JSONBody()?.message || httpError.message}</strong></p>`
-    );
-  }
+      const container = await createContainer({
+        image,
+        cmd,
+        tcpPorts,
+      });
+      await startContainer({id: container.Id});
 
-  res.end(`<button type="submit">
+      await stream.write(`<button type="submit">
           +
           <span class="htmx-indicator">...</span>
         </button>`);
+    },
+    async (err, stream) => {
+      console.error(err);
+      const httpError = err as HTTPError;
+      stream.write(
+        `<p><strong>${httpError?.JSONBody()?.message || httpError.message}</strong></p>`
+      );
+    }
+  );
 };

@@ -1,8 +1,9 @@
+import type {Handler} from "hono";
 import {listContainers} from "./docker-client.js";
-import type {Handler} from "./router.js";
 import * as containersView from "./containers-view.js";
+import {raw} from "hono/html";
 
-export const getHandler: Handler = async ({respond}) => {
+export const getHandler: Handler = async (ctx) => {
   const containerList = await listContainers();
-  respond(200, {}, containersView.render(containerList));
+  return ctx.html(`${raw(containersView.render(containerList))}`);
 };
