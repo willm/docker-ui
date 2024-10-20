@@ -1,9 +1,10 @@
 import {listContainers, deleteContainer} from "./docker-client.js";
 import * as containersView from "./containers-view.js";
-import type {Handler} from "./router.js";
+import type {Handler} from "hono";
+import {html, raw} from "hono/html";
 
-export const deleteHandler: Handler = async ({matches, respond}) => {
-  await deleteContainer({id: matches!.groups!.id});
+export const deleteHandler: Handler = async (ctx) => {
+  await deleteContainer({id: ctx.req.param("id")});
   const containerList = await listContainers();
-  respond(200, {}, containersView.render(containerList));
+  return ctx.html(html`${raw(containersView.render(containerList))}`);
 };

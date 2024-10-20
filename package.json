@@ -2,7 +2,7 @@
   "name": "docker-ui",
   "version": "1.0.0",
   "type": "module",
-  "description": "",
+  "description": "A web client to the docker api",
   "main": "index.js",
   "scripts": {
     "start": "tsc --watch & node --enable-source-maps --watch dist/server.js",
@@ -25,5 +25,9 @@
     "prettier": "^3.3.3",
     "typescript": "^5.6.2",
     "typescript-eslint": "^8.10.0"
+  },
+  "dependencies": {
+    "@hono/node-server": "^1.13.2",
+    "hono": "^4.6.5"
   }
 }

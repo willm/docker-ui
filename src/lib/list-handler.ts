@@ -1,9 +1,10 @@
+import type {Handler} from "hono";
+import {html, raw} from "hono/html";
 import {listContainers} from "./docker-client.js";
 import {HTTPError} from "./request.js";
 import * as containersView from "./containers-view.js";
-import type {Handler} from "./router.js";
 
-export const listHandler: Handler = async ({respond}) => {
+export const listHandler: Handler = async (ctx) => {
   let body: string;
   try {
     const containerList = await listContainers();
@@ -11,10 +12,8 @@ export const listHandler: Handler = async ({respond}) => {
   } catch (err) {
     body = `<p>${(err as HTTPError).statusCode}<p>`;
   }
-  respond(
-    200,
-    {},
-    `<!doctype html>
+  return ctx.html(
+    html`<!doctype html>
     <html>
     <head>
       <link rel="stylesheet" href="https://unpkg.com/mvp.css">
@@ -78,7 +77,8 @@ export const listHandler: Handler = async ({respond}) => {
         <input required type="text" name="image" id="image" />
         <label for="cmd">command</label>
         <input required type="text" name="cmd" id="cmd" />
-        <fieldset>
+        <button id="add-port-mapping-button">Add port mapping</button>
+        <fieldset id="port-mapping-form">
           <legend>Port mappings</legend>
           <label for="host-port">Host</label>
           <input type="number" name="hostPort" id="host-port" min="1000" max="10000" increment=@1"></input>
@@ -92,7 +92,7 @@ export const listHandler: Handler = async ({respond}) => {
           </button>
         </div>
       </form>
-      ${body}
+      ${raw(body)}
     </body>
 </html>`
   );
