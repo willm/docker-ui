@@ -12,6 +12,7 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@commitlint/config-conventional": "^19.5.0",
     "@types/node": "^22.7.2",
     "typescript": "^5.6.2"
   }
