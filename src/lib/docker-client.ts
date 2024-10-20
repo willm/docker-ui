@@ -12,13 +12,15 @@ export type Port = {
   IP: string;
 };
 
-export type ListContainerResponse = {
+export type Container = {
   Id: string;
   Command: string;
   Created: number;
   Image: string;
   Ports: Port[];
-}[];
+};
+
+export type ListContainerResponse = Container[];
 export const listContainers = async (): Promise<ListContainerResponse> => {
   return JSON.parse(
     await requestURLEncoded({
