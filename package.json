@@ -7,13 +7,16 @@
   "scripts": {
     "start": "tsc --watch & node --enable-source-maps --watch dist/server.js",
     "debug": "tsc --watch & node --inspect --enable-source-maps --watch dist/server.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\"",
+    "prepare": "husky"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
     "@commitlint/config-conventional": "^19.5.0",
     "@types/node": "^22.7.2",
+    "commitlint": "^19.5.0",
+    "husky": "^9.1.6",
     "typescript": "^5.6.2"
   }
 }
