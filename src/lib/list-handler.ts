@@ -78,6 +78,13 @@ export const listHandler: Handler = async ({respond}) => {
         <input required type="text" name="image" id="image" />
         <label for="cmd">command</label>
         <input required type="text" name="cmd" id="cmd" />
+        <fieldset>
+          <legend>Port mappings</legend>
+          <label for="host-port">Host</label>
+          <input type="number" name="hostPort" id="host-port" min="1000" max="10000" increment=@1"></input>
+          <label for="containerPort">Container</label>
+          <input type="number" name="containerPort" id="containerPort" min="1" max="10000" increment=@1"></input>
+        </fieldset>
         <div id="container-loading">
           <button type="submit">
             +

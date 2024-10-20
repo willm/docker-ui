@@ -6,6 +6,7 @@ import type {Handler} from "./router.js";
 type CreateContainerRequest = {
   cmd: string[];
   image: string;
+  tcpPorts: Map<number, number>;
 };
 
 const parseRequest = (requestBody: string): CreateContainerRequest => {
@@ -20,7 +21,12 @@ const parseRequest = (requestBody: string): CreateContainerRequest => {
   }
   const image: string = Array.isArray(opts.image) ? opts.image[0] : opts.image;
 
-  return {cmd: cmd.split(" "), image};
+  const tcpPorts: [number, number][] = [];
+  if (opts.hostPort && opts.containerPort) {
+    tcpPorts.push([Number(opts.hostPort), Number(opts.containerPort)]);
+  }
+
+  return {cmd: cmd.split(" "), image, tcpPorts: new Map(tcpPorts)};
 };
 
 export const postHandler: Handler = async ({body, res, respond}) => {
@@ -30,7 +36,7 @@ export const postHandler: Handler = async ({body, res, respond}) => {
   } catch (err) {
     return respond(400, {}, `<p>${(err as Error).message}</p>`);
   }
-  const {image, cmd} = request;
+  const {image, cmd, tcpPorts} = request;
 
   try {
     await new Promise<void>(async (resolve, reject) => {
@@ -50,6 +56,7 @@ export const postHandler: Handler = async ({body, res, respond}) => {
     const container = await createContainer({
       image,
       cmd,
+      tcpPorts,
     });
     await startContainer({id: container.Id});
   } catch (err) {
