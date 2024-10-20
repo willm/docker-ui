@@ -1,7 +1,7 @@
 import http from "http";
 import querystring from "querystring";
 import {requestJSON, requestURLEncoded} from "./request.js";
-import type {IncomingMessage, RequestOptions} from "http";
+import type {IncomingMessage} from "http";
 // docs https://docs.docker.com/reference/api/engine/version/v1.46/#tag/Container
 const socketPath = "/var/run/docker.sock";
 const apiVersion = "v1.41";
@@ -38,8 +38,18 @@ export const deleteContainer = async (opts: DeleteContainerRequest) => {
   });
 };
 
-type CreateContainerRequest = {image: string; cmd: string[]};
+type CreateContainerRequest = {
+  image: string;
+  cmd: string[];
+  tcpPorts?: Map<number, number>;
+};
 export const createContainer = async (opts: CreateContainerRequest) => {
+  const ExposedPorts: Record<string, {}> = {};
+  const PortBindings: Record<string, {HostPort: string}[]> = {};
+  opts.tcpPorts?.forEach((value, key) => {
+    ExposedPorts[`${value}/tcp`] = {};
+    PortBindings[`${value}/tcp`] = [{HostPort: key.toString()}];
+  });
   return JSON.parse(
     await requestJSON(
       {
@@ -50,6 +60,10 @@ export const createContainer = async (opts: CreateContainerRequest) => {
       {
         Image: opts.image,
         Cmd: opts.cmd,
+        ExposedPorts,
+        HostConfig: {
+          PortBindings,
+        },
       }
     )
   );
