@@ -44,7 +44,7 @@ type CreateContainerRequest = {
   tcpPorts?: Map<number, number>;
 };
 export const createContainer = async (opts: CreateContainerRequest) => {
-  const ExposedPorts: Record<string, {}> = {};
+  const ExposedPorts: Record<string, Record<string, never>> = {};
   const PortBindings: Record<string, {HostPort: string}[]> = {};
   opts.tcpPorts?.forEach((value, key) => {
     ExposedPorts[`${value}/tcp`] = {};
@@ -82,7 +82,7 @@ type CreateImageRequest = {fromImage: string; tag: string};
 export const createImage = (
   createImageReq: CreateImageRequest
 ): Promise<IncomingMessage> =>
-  new Promise((resolve, reject) => {
+  new Promise((resolve) => {
     const body = querystring.encode(createImageReq);
     const req = http.request(
       {

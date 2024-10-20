@@ -39,7 +39,7 @@ export const Router = (req: IncomingMessage, res: ServerResponse) => {
       routes.push(["POST", urlPattern, fn]);
     },
     route: async () => {
-      const requestBody: string = await new Promise((resolve, reject) => {
+      const requestBody: string = await new Promise((resolve) => {
         let data = "";
 
         req.on("data", (chunk) => {
@@ -47,6 +47,9 @@ export const Router = (req: IncomingMessage, res: ServerResponse) => {
         });
         req.on("end", () => {
           resolve(data);
+        });
+        req.on("error", (err) => {
+          console.error(err);
         });
       });
       for (const route of routes) {
