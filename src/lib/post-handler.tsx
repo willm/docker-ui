@@ -1,3 +1,4 @@
+import {Button} from "./components/Button.js";
 import {createContainer, startContainer, createImage} from "./docker-client.js";
 import {HTTPError} from "./request.js";
 import type {Handler} from "hono";
@@ -66,11 +67,12 @@ export const postHandler: Handler = async (ctx) => {
         tcpPorts,
       });
       await startContainer({id: container.Id});
-
-      await stream.write(`<button type="submit">
-          +
-          <span class="htmx-indicator">...</span>
-        </button>`);
+      const btn = (
+        <Button type="submit">
+          +<span class="htmx-indicator">...</span>
+        </Button>
+      );
+      await stream.write(btn.toString());
     },
     async (err, stream) => {
       console.error(err);
