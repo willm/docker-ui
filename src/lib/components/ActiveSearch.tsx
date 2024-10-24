@@ -9,6 +9,7 @@ export const ActiveSearch: FC<{id: string}> = (props) => (
       hx-get={`/images/search`}
       hx-trigger="input changed delay:500ms, search"
       hx-target="#active-search-suggestions"
+      autocomplete="off"
       required={true}
       name={props.id}
       id={props.id}

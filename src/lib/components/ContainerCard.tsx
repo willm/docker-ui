@@ -31,9 +31,9 @@ export const ContainerCard: FC<{container: Container}> = (props) => {
     <aside class="border-solid border-2 border-black rounded py-2 px-2">
       <h3>{c.Image}</h3>
       <h4>{c.Id.substring(0, 12)}</h4>
-      <span>{new Date(c.Created * 1000).toLocaleString()}</span>
+      <span class="block">{new Date(c.Created * 1000).toLocaleString()}</span>
       <code class="font-mono w-full">{c.Command}</code>
-      <PortsTable ports={ports} />
+      {ports.length > 0 && <PortsTable ports={ports} />}
       <br />
       <Button
         type="button"

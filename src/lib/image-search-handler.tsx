@@ -6,7 +6,7 @@ export const imageSearchHandler: Handler = async (ctx) => {
 
   return ctx.html(
     <>
-      {imageList.results.map((i) => (
+      {imageList.results.map((i: {name: string}) => (
         <button
           hx-on:click={`
             document.getElementById('image').value = this.textContent;
