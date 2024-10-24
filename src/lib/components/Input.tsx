@@ -6,6 +6,7 @@ export const TextInput: FC<{
   required?: boolean;
   className?: string;
   list?: string;
+  autocomplete?: "on" | "off";
 }> = (props) => (
   <input
     {...props}
