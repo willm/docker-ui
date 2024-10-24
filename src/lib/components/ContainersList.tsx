@@ -10,7 +10,7 @@ export const ContainersList: FC<{containers: ListContainerResponse}> = (
       id="containers"
       class="grid grid-cols-4 gap-4"
       hx-get="/containers"
-      hx-trigger="newContainer from:body, every 10s"
+      hx-trigger="newContainer from:body, every 120s"
     >
       {props.containers.map((c) => (
         <ContainerCard container={c} />
