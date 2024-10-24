@@ -3,6 +3,10 @@ import {listContainers} from "./docker-client.js";
 import {HTTPError} from "./request.js";
 import {ContainersList} from "./components/ContainersList.js";
 import {Button} from "./components/Button.js";
+import {Label} from "./components/Label.js";
+import {TextInput, NumberInput} from "./components/Input.js";
+import {ArrowSquare} from "./components/Icons.js";
+import {ActiveSearch} from "./components/ActiveSearch.js";
 
 export const listHandler: Handler = async (ctx) => {
   let body;
@@ -30,7 +34,7 @@ export const listHandler: Handler = async (ctx) => {
         <link rel="stylesheet" href="/static/src/style.css"></link>
         <title>Docker</title>
       </head>
-      <body hx-ext="chunked-transfer">
+      <body class="px-20 py-10" hx-ext="chunked-transfer">
         <article>
           <aside id="error"></aside>
         </article>
@@ -44,34 +48,35 @@ export const listHandler: Handler = async (ctx) => {
           }}
         >
           <h2>Launch Container</h2>
-          <label for="image">image</label>
-          <input required type="text" name="image" id="image" />
-          <label for="cmd">command</label>
-          <input required type="text" name="cmd" id="cmd" />
-          <Button id="add-port-mapping-button">Add port mapping</Button>
-          <fieldset id="port-mapping-form">
+          <ActiveSearch id="image" />
+          <Label for="cmd">Command</Label>
+          <div class="inline-flex">
+            <TextInput required={true} name="cmd" id="cmd" />
+            <Button className="ml-2" id="add-port-mapping-button">
+              <ArrowSquare />
+            </Button>
+          </div>
+          <fieldset id="port-mapping-form" class="hidden">
             <legend>Port mappings</legend>
-            <label for="host-port">Host</label>
-            <input
-              type="number"
+            <Label for="host-port">Host</Label>
+            <NumberInput
               name="hostPort"
               id="host-port"
-              min="1000"
-              max="10000"
-              increment="1"
-            ></input>
-            <label for="containerPort">Container</label>
-            <input
-              type="number"
+              min={1000}
+              max={10000}
+              increment={1}
+            />
+            <Label for="container-port">Container</Label>
+            <NumberInput
               name="containerPort"
               id="containerPort"
-              min="1"
-              max="10000"
-              increment="1"
-            ></input>
+              min={1}
+              max={10000}
+              increment={1}
+            />
           </fieldset>
           <div id="container-loading">
-            <Button type="submit">
+            <Button type="submit" className="mt-2">
               +<span class="htmx-indicator">...</span>
             </Button>
           </div>
