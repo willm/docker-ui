@@ -14,7 +14,12 @@ const PortsTable: FC<{ports: Port[]}> = (props) => (
         {props.ports.map((p) => (
           <tr>
             <td>
-              <a href="http://localhost:${p.PublicPort}">{p.PublicPort}</a>
+              <a
+                class="font-medium text-blue-600 dark:text-blue-500 hover:underline visited:text-purple-600"
+                href={`http://localhost:${p.PublicPort}`}
+              >
+                {p.PublicPort}
+              </a>
             </td>
             <td>{p.PrivatePort}</td>
           </tr>
