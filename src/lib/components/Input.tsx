@@ -6,6 +6,8 @@ export const TextInput: FC<{
   required?: boolean;
   className?: string;
   list?: string;
+  placeholder?: string;
+  autofocus?: boolean;
   autocomplete?: "on" | "off";
 }> = (props) => (
   <input
@@ -18,6 +20,8 @@ export const TextInput: FC<{
     type="text"
     name={props.name}
     id={props.id}
+    placeholder={props.placeholder}
+    autofocus={props.autofocus}
     list={props.list}
   />
 );

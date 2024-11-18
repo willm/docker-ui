@@ -20,6 +20,25 @@ export type Container = {
   Ports: Port[];
 };
 
+export type AuthResponse = {Status: string; IdentityToken: string};
+export type AuthRequest = {
+  username: string;
+  password: string;
+  serveraddress: string;
+};
+export const auth = async (authRequest: AuthRequest): Promise<AuthResponse> => {
+  return JSON.parse(
+    await requestJSON(
+      {
+        socketPath,
+        path: url("/auth"),
+        method: "POST",
+      },
+      authRequest
+    )
+  );
+};
+
 export type ListContainerResponse = Container[];
 export const listContainers = async (): Promise<ListContainerResponse> => {
   return JSON.parse(

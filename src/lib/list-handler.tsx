@@ -8,6 +8,7 @@ import {TextInput, NumberInput} from "./components/Input.js";
 import {ArrowSquare} from "./components/Icons.js";
 import {ActiveSearch} from "./components/ActiveSearch.js";
 import {Header} from "./components/Header.js";
+import {Head} from "./components/Head.js";
 
 export const listHandler: Handler = async (ctx) => {
   let body;
@@ -19,22 +20,7 @@ export const listHandler: Handler = async (ctx) => {
   }
   return ctx.html(
     <html>
-      <head>
-        <script
-          src="https://unpkg.com/htmx.org@2.0.2"
-          integrity="sha384-Y7hw+L/jvKeWIRRkqWYfPcvVxHzVzn5REgzbawhxAuQGwX1XWe70vji+VSeHOThJ"
-          crossorigin="anonymous"
-        ></script>
-        <script src="https://unpkg.com/htmx.org@1.9.12/dist/ext/response-targets.js"></script>
-        <script
-          src="/static/src/htmx-chunked.js"
-          type="text/javascript"
-        ></script>
-        <script src="https://cdn.tailwindcss.com"></script>
-        <script src="/static/src/index.js" defer></script>
-        <link rel="stylesheet" href="/static/src/style.css"></link>
-        <title>Docker</title>
-      </head>
+      <Head />
       <body hx-ext="chunked-transfer">
         <Header />
         <main class="px-20 py-10">
