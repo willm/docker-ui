@@ -7,6 +7,7 @@ import {getHandler} from "./lib/get-handler.js";
 import {imageSearchHandler} from "./lib/image-search-handler.js";
 import {serveStatic} from "@hono/node-server/serve-static";
 import * as registries from "./lib/registries.js";
+import * as registry from "./lib/registry.js";
 
 const app = new Hono();
 app.get("/", listHandler);
@@ -16,6 +17,7 @@ app.delete("/containers/:id", deleteHandler);
 
 app.get("/registries", registries.get);
 app.post("/registries/ecr", registries.postECR);
+app.get("/registries/:id", registry.get);
 
 app.get("/images/search", imageSearchHandler);
 

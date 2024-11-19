@@ -1,5 +1,19 @@
-import {ECRClient, GetAuthorizationTokenCommand} from "@aws-sdk/client-ecr";
+import {
+  DescribeRepositoriesCommand,
+  ECRClient,
+  GetAuthorizationTokenCommand,
+} from "@aws-sdk/client-ecr";
 import {fromIni} from "@aws-sdk/credential-providers";
+
+export const listRepos = async (registry: ECRRegistry) => {
+  const client = new ECRClient({
+    region: registry.region,
+    credentials: fromIni({profile: registry.profile}),
+  });
+  const repos = await client.send(new DescribeRepositoriesCommand());
+  console.log(repos);
+  return repos;
+};
 
 export const getEcrLoginPassword = async (
   registry: ECRRegistry
@@ -37,6 +51,8 @@ type ECRRegistryCredentials = {
 };
 
 export type ECRRegistry = {
+  id: string;
   region: string;
   profile: string;
+  name: string;
 };

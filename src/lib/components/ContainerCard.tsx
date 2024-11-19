@@ -1,6 +1,7 @@
 import {Button} from "./Button.js";
 import type {Container, Port} from "../docker-client.js";
 import {FC} from "hono/jsx";
+import {Link} from "./Link.js";
 
 const PortsTable: FC<{ports: Port[]}> = (props) => (
   <>
@@ -14,12 +15,9 @@ const PortsTable: FC<{ports: Port[]}> = (props) => (
         {props.ports.map((p) => (
           <tr>
             <td>
-              <a
-                class="font-medium text-blue-600 dark:text-blue-500 hover:underline visited:text-purple-600"
-                href={`http://localhost:${p.PublicPort}`}
-              >
+              <Link href={`http://localhost:${p.PublicPort}`}>
                 {p.PublicPort}
-              </a>
+              </Link>
             </td>
             <td>{p.PrivatePort}</td>
           </tr>
