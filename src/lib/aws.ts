@@ -1,15 +1,31 @@
 import {
+  DescribeImagesCommand,
+  DescribeRegistryCommand,
   DescribeRepositoriesCommand,
   ECRClient,
   GetAuthorizationTokenCommand,
 } from "@aws-sdk/client-ecr";
 import {fromIni} from "@aws-sdk/credential-providers";
 
-export const listRepos = async (registry: ECRRegistry) => {
-  const client = new ECRClient({
+const getClient = (registry: ECRRegistry): ECRClient => {
+  return new ECRClient({
     region: registry.region,
     credentials: fromIni({profile: registry.profile}),
   });
+};
+
+export const listImages = async (registry: ECRRegistry, repo: string) => {
+  const client = getClient(registry);
+  return await client.send(
+    new DescribeImagesCommand({
+      registryId: registry.id,
+      repositoryName: repo,
+    })
+  );
+};
+
+export const listRepos = async (registry: ECRRegistry) => {
+  const client = getClient(registry);
   const repos = await client.send(new DescribeRepositoriesCommand());
   console.log(repos);
   return repos;
@@ -18,12 +34,7 @@ export const listRepos = async (registry: ECRRegistry) => {
 export const getEcrLoginPassword = async (
   registry: ECRRegistry
 ): Promise<ECRRegistryCredentials> => {
-  const client = new ECRClient({
-    region: registry.region,
-    credentials: fromIni({profile: registry.profile}),
-  });
-
-  // Fetch the authorization token
+  const client = getClient(registry);
   const command = new GetAuthorizationTokenCommand({});
   const response = await client.send(command);
 
@@ -41,13 +52,23 @@ export const getEcrLoginPassword = async (
   // The decoded token is in the format 'username:password'
   const [username, password] = decodedToken.split(":");
 
-  return {password, username, url: authData.proxyEndpoint!};
+  const reg = await client.send(new DescribeRegistryCommand());
+  if (!reg.registryId) {
+    throw new Error("registry not found");
+  }
+  return {
+    password,
+    username,
+    url: authData.proxyEndpoint!,
+    id: reg.registryId,
+  };
 };
 
 type ECRRegistryCredentials = {
   password: string;
   username: string;
   url: string;
+  id: string;
 };
 
 export type ECRRegistry = {

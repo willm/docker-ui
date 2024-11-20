@@ -8,15 +8,13 @@ import {ECRRegistry, getEcrLoginPassword} from "./aws.js";
 import {auth} from "./docker-client.js";
 import {addRegistry, getConfig} from "./config.js";
 import {Link} from "./components/Link.js";
-import {randomUUID} from "node:crypto";
 
 export const postECR: Handler = async (ctx) => {
   const request: ECRRegistry = await ctx.req.parseBody();
-  request.id = randomUUID();
   const creds = await getEcrLoginPassword(request);
   const token = await auth({...creds, serveraddress: creds.url});
   console.log(token);
-  await addRegistry(request);
+  await addRegistry({...request, id: creds.id});
   return ctx.redirect("/registries", 302);
 };
 
@@ -31,9 +29,7 @@ export const get: Handler = async (ctx) => {
           <h1>Registries</h1>
           {config.registries.map((r) => (
             <h2>
-              <Link alt={r.name} href={`/registries/${r.id}`}>
-                {r.name}
-              </Link>
+              <Link href={`/registries/${r.id}`}>{r.name}</Link>
             </h2>
           ))}
           <div class="flex items-center space-x-10">
